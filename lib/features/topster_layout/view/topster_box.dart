@@ -40,10 +40,11 @@ class _TopsterBoxState extends State<TopsterBox> {
       },
       onAccept: (data) {
         insert
-            ? widget.controller.insertTopster(widget.index, data)
+            ? widget.controller.insertUntilNullTopster(widget.index, data)
             : widget.controller.attachTopster(widget.index, data);
-        print(widget.controller.topsterStore[widget.index].name);
-        print(widget.index);
+
+        // print(widget.controller.topsterStore[widget.index].name);
+        // print(widget.index);
       },
     );
   }
@@ -68,9 +69,10 @@ class _TDrag2State extends State<TDrag2> {
   //   });
   //   super.dispose();
   // }
-  bool remove = false;
+
   @override
   Widget build(BuildContext context) {
+    bool remove = false;
     final Widget box = Container(
       child: widget.data.image,
       color: Colors.black,
@@ -83,11 +85,13 @@ class _TDrag2State extends State<TDrag2> {
         feedback: box,
         child: box,
         data: widget.data,
-        childWhenDragging: remove ? box : const EmptyBox(),
+        //childWhenDragging: remove ? box : const EmptyBox(),
         onDragStarted: () {
-          remove
-              ? widget.controller.removeTopster(widget.index)
-              : widget.controller.detachTopster(widget.index);
+          if (remove) {
+            widget.controller.removeUntilNullTopster(widget.index);
+            remove = false;
+          } else
+            widget.controller.detachTopster(widget.index);
         },
         onDraggableCanceled: (_, __) {
           widget.controller.attachTopster(widget.index, widget.data);

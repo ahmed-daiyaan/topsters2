@@ -1,108 +1,80 @@
 import 'package:flutter/material.dart';
-import 'package:rxdart/subjects.dart';
 import 'package:topsters/features/topster_layout/controller/topster_box_controller.dart';
 import 'package:topsters/features/topster_layout/view/topster_box.dart';
 
 import '../../core/test_draggables.dart';
-import 'package:reorderables/reorderables.dart';
 
 class TopsterLayout extends StatefulWidget {
   @override
   _TopsterLayoutState createState() => _TopsterLayoutState();
 }
 
-BehaviorSubject<int> s = new BehaviorSubject<int>();
-
 class _TopsterLayoutState extends State<TopsterLayout> {
   final List<int> layoutSizes = [5, 6, 3, 3, 3, 2];
-
   final double rowPad = 1.5;
-
   final double columnPad = 1.5;
+
   List<Widget> columns = List<Widget>();
   TopsterBoxesController controller;
   @override
   void initState() {
     super.initState();
     controller =
-        TopsterBoxesController.initialize(calculateTotalBoxes(layoutSizes));
-
-    for (int i = 0; i < layoutSizes.length; i++) {
-      generateGridLayout(layoutSizes, controller, i, rowPad, columnPad);
-    }
+        TopsterBoxesController.initialize(totalBoxes: calculateTotalBoxes());
+    generateTopsterLayout();
   }
 
   void _onReorder(int oldIndex, int newIndex) {
+    if (oldIndex == newIndex) return;
     setState(() {
-      if (newIndex > oldIndex) newIndex -= 1;
-      print('oldindex:$oldIndex');
-      print('newindex:$newIndex');
-
       columns.clear();
-      print(layoutSizes);
-
+      if (newIndex > oldIndex) newIndex -= 1;
       controller.onReorder(layoutSizes, newIndex, oldIndex);
-      // var tem = layoutSizes.removeAt(oldIndex);
-      // layoutSizes.insert(newIndex, tem);
-      for (int i = 0; i < layoutSizes.length; i++) {
-        generateGridLayout(layoutSizes, controller, i, rowPad, columnPad);
-      }
-      // print('newlayoutsizes $layoutSizes');
-      // Widget column = columns.removeAt(oldIndex);
-      // columns.insert(newIndex, column);
-      s.sink.add(1);
+      if (oldIndex > newIndex) rearrangeLayoutSizes(oldIndex, newIndex);
+      generateTopsterLayout();
     });
   }
-  // // columns.clear();
-  // int removedRow = layoutSizes.removeAt(oldIndex);
-  // layoutSizes.insert(newIndex, removedRow);
-  // // for (int i = 0; i < layoutSizes.length; i++) {
-  // //   generateGridLayout(layoutSizes, controller, i, rowPad, columnPad);
-  // // }
-  // controller.onReorder(layoutSizes, oldIndex, newIndex);
-  // // });
 
-  @override
-  void dispose() {
-    s.close();
-    super.dispose();
+  void rearrangeLayoutSizes(int oldIndex, newIndex) {
+    var tem = layoutSizes.removeAt(oldIndex);
+    layoutSizes.insert(newIndex, tem);
   }
 
   @override
   Widget build(BuildContext context) {
-    print("hi");
     return Scaffold(
       body: Column(
         children: [
-          Expanded(
-            child: StreamBuilder<Object>(
-                stream: s,
-                builder: (context, snapshot) {
-                  return ReorderableListView(
-                    //scrollController: ScrollController(),
-                    //crossAxisAlignment: CrossAxisAlignment.start,
-                    onReorder: _onReorder,
-                    //mainAxisAlignment: MainAxisAlignment.start,
-                    children: columns,
-                    // buildDraggableFeedback: (context, constraints, child) =>
-                    //     Container(color: Colors.black, height: 100, width: 100),
-                  );
-                }),
-          ),
+          Stack(children: <Widget>[
+            Center(
+              child: Container(height: 600, width: 300, color: Colors.pink
+                  //  Image.network(
+                  //     "https://lastfm.freetls.fastly.net/i/u/300x300/3061a718bafbccc70ac73c7dafec6a09.png",
+                  //     fit: BoxFit.contain),
+                  ),
+            ),
+            Center(
+              child: Container(
+                height: 600,
+                width: 300,
+                child: ReorderableListView(
+                  onReorder: _onReorder,
+                  children: columns,
+                ),
+              ),
+            ),
+          ]),
           TestDraggables()
         ],
       ),
     );
   }
 
-  Widget generateGridLayout(
-      List<int> topsterLayoutBoxSizes,
-      TopsterBoxesController controller,
-      int columnIndex,
-      double rowPad,
-      double columnPad) {
-    int count = topsterLayoutBoxSizes[columnIndex];
-    var generatedGrid = GridView.count(
+  void generateGridLayout(
+    int columnIndex,
+  ) {
+    int count = layoutSizes[columnIndex];
+    Widget generatedGrid = GridView.count(
         controller: ScrollController(),
         key: UniqueKey(),
         crossAxisCount: count,
@@ -111,7 +83,6 @@ class _TopsterLayoutState extends State<TopsterLayout> {
         children: List<Widget>.generate(
             count,
             (rowIndex) => LayoutBuilder(builder: (context, constraints) {
-                  // print(constraints);
                   return Padding(
                       padding: EdgeInsets.only(
                           top: rowPad,
@@ -120,7 +91,6 @@ class _TopsterLayoutState extends State<TopsterLayout> {
                           right: columnPad),
                       child: TopsterBox(
                         index: calculateBoxIndex(
-                          topsterLayoutBoxSizes,
                           columnIndex,
                           rowIndex,
                         ),
@@ -129,9 +99,13 @@ class _TopsterLayoutState extends State<TopsterLayout> {
                       ));
                 })));
     columns.add(generatedGrid);
-    return generatedGrid;
   }
-}
+
+  void generateTopsterLayout() {
+    for (int i = 0; i < layoutSizes.length; i++) {
+      generateGridLayout(i);
+    }
+  }
 
 // List<Widget> generateTopsterLayout(List<int> topsterLayoutBoxSizes,
 //     double columnPadding, double rowPadding, BoxConstraints constraints) {
@@ -159,15 +133,13 @@ class _TopsterLayoutState extends State<TopsterLayout> {
 //   return (generatedLayout);
 // }
 
-int calculateBoxIndex(
-    List<int> topsterLayoutBoxSizes, int columnIndex, int rowIndex) {
-  int boxIndex = topsterLayoutBoxSizes
-          .sublist(0, columnIndex)
-          .fold<int>(0, (prev, element) => prev + element) +
-      rowIndex;
-  //print(boxIndex);
-  return boxIndex;
-}
+  int calculateBoxIndex(int columnIndex, int rowIndex) {
+    int boxIndex = layoutSizes
+            .sublist(0, columnIndex)
+            .fold<int>(0, (prev, element) => prev + element) +
+        rowIndex;
+    return boxIndex;
+  }
 
 // double calculateBoxSize(
 //     BoxConstraints constraints, double rowPadding, int childIndex) {
@@ -177,8 +149,9 @@ int calculateBoxIndex(
 //   return boxSize;
 // }
 
-int calculateTotalBoxes(List<int> layoutList) {
-  int totalBoxes = layoutList.fold<int>(
-      0, (previousValue, element) => previousValue + element);
-  return totalBoxes;
+  int calculateTotalBoxes() {
+    int totalBoxes = layoutSizes.fold<int>(
+        0, (previousValue, element) => previousValue + element);
+    return totalBoxes;
+  }
 }

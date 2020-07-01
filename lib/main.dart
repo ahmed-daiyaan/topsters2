@@ -15,12 +15,12 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
         //checkerboardRasterCacheImages: true,
         // checkerboardOffscreenLayers: true,
-        //showPerformanceOverlay: true,
+        showPerformanceOverlay: true,
         title: 'AlbumSearchResults',
         theme: ThemeData(
           primarySwatch: Colors.green,
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
-        home: SearchPage());
+        home: TopsterLayout());
   }
 }
