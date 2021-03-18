@@ -10,6 +10,6 @@ class GetMovieSearchResult implements Usecase<SearchResult, Params> {
   GetMovieSearchResult(this.repository);
   @override
   Future<Either<Failure, SearchResult>> call(Params params) async {
-    return await repository.getMovieSearchResult(params.searchQuery);
+    return repository.getMovieSearchResult(params.searchQuery);
   }
 }

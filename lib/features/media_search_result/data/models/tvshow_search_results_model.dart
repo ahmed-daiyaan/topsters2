@@ -4,48 +4,53 @@ import 'package:meta/meta.dart';
 import '../../domain/entities/search_results.dart';
 
 class TVShowSearchResultModel extends SearchResult {
-  TVShowSearchResultModel({
-    @required tvshowNames,
-    @required tvshowStartDates,
-    @required tvshowImages,
-    @required totalResults,
+  const TVShowSearchResultModel({
+    @required List<String> tvshowNames,
+    @required List<String> tvshowStartDates,
+    @required List<String> tvshowImages,
+    @required int totalResults,
   }) : super(
             mediaNames: tvshowNames,
             secondaryFields: tvshowStartDates,
             mediaImages: tvshowImages,
             totalResults: totalResults);
 
-  factory TVShowSearchResultModel.fromJson(List<Map<String, dynamic>> jsons) {
-    List<String> tvshowNames = List<String>();
-    List<String> tvshowImages = List<String>();
-    List<String> tvshowStartDates = List<String>();
-    bool _testIfFieldsAreNull;
+  factory TVShowSearchResultModel.fromJson(List jsons) {
+    final List<String> tvshowNames = [];
+    final List<String> tvshowImages = [];
+    final List<String> tvshowStartDates = [];
+
     int count = 0;
-    String _testImageString;
-    String _testNameString;
-    String _testSecondFieldString;
-    int index = 0;
+    String imageUrl;
+    String name;
+    String secondField;
+
+    bool filterResult(String name, String imageUrl, String secondField) {
+      if (imageUrl == "null" ||
+          imageUrl == "" ||
+          name == "null" ||
+          name == "" ||
+          secondField == "null" ||
+          secondField == "") {
+        return true;
+      } else {
+        return false;
+      }
+    }
 
     for (int i = 0; i < jsons.length; i++) {
-      var json = jsons[i];
-      for (index = 0; index < json['results'].length; index++) {
-        _testImageString = json['results'][index]['poster_path'];
-        _testNameString = json['results'][index]['name'];
-        _testSecondFieldString = json['results'][index]['first_air_date'];
-        if (_testImageString == null ||
-            _testImageString == "" ||
-            _testNameString == null ||
-            _testNameString == "" ||
-            _testSecondFieldString == null ||
-            _testSecondFieldString == "")
-          _testIfFieldsAreNull = true;
-        else
-          _testIfFieldsAreNull = false;
-        if (!_testIfFieldsAreNull) {
-          tvshowNames.add(_testNameString);
-          tvshowStartDates.add(_testSecondFieldString);
-          tvshowImages
-              .add("http://image.tmdb.org/t/p/original" + _testImageString);
+      final json = jsons[i];
+      for (int index = 0;
+          index < int.parse(json['results'].length.toString());
+          index++) {
+        imageUrl = json['results'][index]['poster_path'].toString();
+        name = json['results'][index]['name'].toString();
+        secondField = json['results'][index]['first_air_date'].toString();
+
+        if (filterResult(name, imageUrl, secondField) == false) {
+          tvshowNames.add(name);
+          tvshowStartDates.add(secondField);
+          tvshowImages.add("http://image.tmdb.org/t/p/original/ imageUrl");
           count++;
         }
       }

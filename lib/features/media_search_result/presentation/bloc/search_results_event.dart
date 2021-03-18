@@ -7,7 +7,7 @@ abstract class SearchResultEvent extends Equatable {
 class GetSearchResultForAlbum extends SearchResultEvent {
   final String searchQuery;
 
-  GetSearchResultForAlbum(this.searchQuery);
+  const GetSearchResultForAlbum(this.searchQuery);
   @override
   List<Object> get props => [searchQuery];
 }
@@ -15,7 +15,7 @@ class GetSearchResultForAlbum extends SearchResultEvent {
 class GetSearchResultForMovie extends SearchResultEvent {
   final String searchQuery;
 
-  GetSearchResultForMovie(this.searchQuery);
+  const GetSearchResultForMovie(this.searchQuery);
   @override
   List<Object> get props => [searchQuery];
 }
@@ -23,7 +23,7 @@ class GetSearchResultForMovie extends SearchResultEvent {
 class GetSearchResultForTVShow extends SearchResultEvent {
   final String searchQuery;
 
-  GetSearchResultForTVShow(this.searchQuery);
+  const GetSearchResultForTVShow(this.searchQuery);
   @override
   List<Object> get props => [searchQuery];
 }

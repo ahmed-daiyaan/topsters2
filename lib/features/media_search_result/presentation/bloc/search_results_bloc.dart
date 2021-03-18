@@ -13,6 +13,7 @@ import '../../domain/usecases/get_tvshow_search_result.dart';
 part 'search_results_event.dart';
 part 'search_results_state.dart';
 
+// ignore: constant_identifier_names
 const String SERVER_FAILURE_MESSAGE = 'Server Failure';
 
 class SearchResultBloc extends Bloc<SearchResultEvent, SearchResultState> {
@@ -20,9 +21,8 @@ class SearchResultBloc extends Bloc<SearchResultEvent, SearchResultState> {
   final GetMovieSearchResult getMovieSearchResult;
   final GetTVShowSearchResult getTVShowSearchResult;
   SearchResultBloc(this.getAlbumSearchResult, this.getMovieSearchResult,
-      this.getTVShowSearchResult);
-  @override
-  SearchResultState get initialState => Empty();
+      this.getTVShowSearchResult)
+      : super(Empty());
   @override
   Stream<SearchResultState> mapEventToState(
     SearchResultEvent event,

@@ -1,125 +1,151 @@
-import 'package:rxdart/rxdart.dart';
+import 'package:flutter/widgets.dart';
 import 'package:topsters/features/topster_layout/model/topster_box_model.dart';
 
-class TopsterBoxesController {
-  final int totalBoxes;
-  final List<BehaviorSubject<TopsterBoxData>> boxStreams;
+class TopsterBoxesController extends ChangeNotifier {
   final List<TopsterBoxData> topsterStore;
   TopsterBoxesController({
-    this.totalBoxes,
-    this.boxStreams,
     this.topsterStore,
   });
 
-  factory TopsterBoxesController.initialize(
-      {int totalBoxes, List<int> layoutSizes}) {
-    List<BehaviorSubject<TopsterBoxData>> boxStreams =
-        List<BehaviorSubject<TopsterBoxData>>.generate(
-            totalBoxes, (index) => BehaviorSubject<TopsterBoxData>());
-    List<TopsterBoxData> topsterStore =
-        List<TopsterBoxData>.generate(totalBoxes, (index) => null);
+  factory TopsterBoxesController.initialize({int totalBoxes}) {
+    final List<TopsterBoxData> topsterStore = List<TopsterBoxData>.generate(
+      totalBoxes,
+      (index) => null,
+    );
     return TopsterBoxesController(
-      totalBoxes: totalBoxes,
-      boxStreams: boxStreams,
       topsterStore: topsterStore,
     );
   }
 
-  removeUntilNullTopster(int startIndex) {
+  void removeUntilNullBox(int startIndex) {
     topsterStore.removeAt(startIndex);
+
+    topsterStore.add(null);
+
     int endIndex = startIndex;
-    while (topsterStore[endIndex] != null) endIndex++;
+    while (topsterStore[endIndex] != null) {
+      if (endIndex < topsterStore.length) {
+        endIndex++;
+      } else {
+        topsterStore.removeLast();
+        break;
+      }
+    }
     topsterStore.insert(endIndex, null);
-    resetUntilNullTopster(startIndex, ++endIndex);
+    updateBoxes();
   }
 
-  insertUntilNullTopster(int startIndex, TopsterBoxData data) {
+  void insertUntilNullBox(int startIndex, TopsterBoxData data) {
     topsterStore.insert(startIndex, data);
     int endIndex = startIndex;
-    while (topsterStore[endIndex] != null) endIndex++;
+    while (topsterStore[endIndex] != null) {
+      if (endIndex < topsterStore.length - 1) {
+        endIndex++;
+      } else {
+        topsterStore.add(topsterStore.removeLast());
+        break;
+      }
+    }
     topsterStore.removeAt(endIndex);
-    resetUntilNullTopster(startIndex, endIndex);
+    updateBoxes();
   }
 
-  resetUntilNullTopster(int startIndex, endIndex) {
-    Iterator<TopsterBoxData> i =
-        topsterStore.sublist(startIndex, endIndex).iterator;
-    boxStreams.sublist(startIndex, endIndex).forEach((element) {
-      i.moveNext();
-      element.sink.add(i.current);
-    });
-  }
-
-  attachTopster(int index, TopsterBoxData data) {
+  void attachBox(int index, TopsterBoxData data) {
     topsterStore[index] = data;
-    boxStreams[index].sink.add(data);
+    updateBoxes();
   }
 
-  detachTopster(int index) {
+  void detachBox(int index) {
     topsterStore[index] = null;
-    boxStreams[index].sink.add(null);
+
+    updateBoxes();
   }
 
-  void insertTopster(int index, TopsterBoxData data) {
+  void insertBox(int index, TopsterBoxData data) {
     topsterStore.insert(index, data);
     topsterStore.removeLast();
-    resetTopsters(index);
+    updateBoxes();
   }
 
-  removeTopster(int index) {
-    topsterStore.removeAt(index);
-    topsterStore.add(null);
-    resetTopsters(index);
+  void updateBoxes() {
+    notifyListeners();
   }
 
-  resetTopsters(int index) {
-    Iterator<TopsterBoxData> i = topsterStore.sublist(index).iterator;
-    boxStreams.sublist(index).forEach((element) {
-      i.moveNext();
-      element.sink.add(i.current);
-    });
-  }
-
-  onReorder(List<int> layoutSizes, int newIndex, int oldIndex) {
-    calculateSum(int index) {
+  void insertRow(int index, int boxCount, List<int> rowsBoxCount) {
+    int calculateSum(int index) {
       int sum = 0;
       for (int i = 0; i < index; i++) {
-        sum += layoutSizes[i];
+        sum += rowsBoxCount[i];
       }
       return sum;
     }
 
-    removeAndInsert(int boxCount, int boxOldIndex, int boxNewIndex) {
+    final int boxIndex = calculateSum(index);
+    for (int i = 0; i < boxCount; i++) {
+      topsterStore.insert(boxIndex, null);
+    }
+
+    updateBoxes();
+  }
+
+  void removeRow(int index, List<int> rowsBoxCount) {
+    int calculateSum(int index) {
+      int sum = 0;
+      for (int i = 0; i < index; i++) {
+        sum += rowsBoxCount[i];
+      }
+      return sum;
+    }
+
+    final int boxCount = rowsBoxCount[index];
+    final int boxIndex = calculateSum(index);
+    for (int i = 0; i < boxCount; i++) {
+      topsterStore.removeAt(boxIndex);
+    }
+    updateBoxes();
+  }
+
+  void onReorder(List<int> rowsBoxCount, int newIndex, int oldIndex) {
+    int calculateSum(int index) {
+      int sum = 0;
+      for (int i = 0; i < index; i++) {
+        sum += rowsBoxCount[i];
+      }
+      return sum;
+    }
+
+    void removeAndInsert(int boxCount, int boxOldIndex, int boxNewIndex) {
       for (int i = 0; i < boxCount; i++) {
-        var temp = topsterStore.removeAt(boxOldIndex++);
+        // ignore: parameter_assignments
+        final temp = topsterStore.removeAt(boxOldIndex++);
+        // ignore: parameter_assignments
         topsterStore.insert(boxNewIndex++, temp);
       }
     }
 
-    reorderUpToDown() {
-      int boxOldIndex = calculateSum(oldIndex);
-      int boxes = layoutSizes.removeAt(oldIndex);
-      layoutSizes.insert(newIndex, boxes);
-      int boxCount = layoutSizes[newIndex];
+    void reorderUpToDown() {
+      final int boxOldIndex = calculateSum(oldIndex);
+      final int boxes = rowsBoxCount.removeAt(oldIndex);
+      rowsBoxCount.insert(newIndex, boxes);
+      final int boxCount = rowsBoxCount[newIndex];
       int boxNewIndex = calculateSum(newIndex);
-      List<TopsterBoxData> boxInsertList = List<TopsterBoxData>();
+      final List<TopsterBoxData> boxInsertList = [];
       for (int i = 0; i < boxCount; i++) {
-        var temp = topsterStore.removeAt(boxOldIndex);
-        boxInsertList.add(temp);
+        boxInsertList.add(topsterStore.removeAt(boxOldIndex));
       }
       for (int i = 0; i < boxInsertList.length; i++) {
         topsterStore.insert(boxNewIndex++, boxInsertList[i]);
       }
     }
 
-    reorderDownToUp() {
-      int boxCount = layoutSizes[oldIndex];
-      int boxOldIndex = calculateSum(oldIndex);
-      int boxNewIndex = calculateSum(newIndex);
+    void reorderDownToUp() {
+      final int boxCount = rowsBoxCount[oldIndex];
+      final int boxOldIndex = calculateSum(oldIndex);
+      final int boxNewIndex = calculateSum(newIndex);
       removeAndInsert(boxCount, boxOldIndex, boxNewIndex);
     }
 
     newIndex > oldIndex ? reorderUpToDown() : reorderDownToUp();
-    resetTopsters(0);
+    updateBoxes();
   }
 }

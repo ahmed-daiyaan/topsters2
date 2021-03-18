@@ -1,7 +1,5 @@
-import 'package:flutter/material.dart';
-
 class TopsterBoxData {
-  final Image image;
+  final String image;
   final String name;
   final String secondaryField;
 

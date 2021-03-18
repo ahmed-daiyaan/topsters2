@@ -10,6 +10,6 @@ class GetAlbumSearchResult implements Usecase<SearchResult, Params> {
   GetAlbumSearchResult(this.repository);
   @override
   Future<Either<Failure, SearchResult>> call(Params params) async {
-    return await repository.getAlbumSearchResult(params.searchQuery);
+    return repository.getAlbumSearchResult(params.searchQuery);
   }
 }

@@ -1,6 +1,8 @@
+import 'package:flutter/widgets.dart';
+
 class ServerException implements Exception {
   ServerException(Error e) {
-    print(e.toString());
+    debugPrint(e.toString());
   }
 }
 

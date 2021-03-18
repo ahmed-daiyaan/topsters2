@@ -6,7 +6,7 @@ class SearchResult extends Equatable {
   final List<dynamic> mediaNames;
   final List<dynamic> mediaImages;
   final List<dynamic> secondaryFields;
-  SearchResult({
+  const SearchResult({
     @required this.totalResults,
     @required this.secondaryFields,
     @required this.mediaNames,

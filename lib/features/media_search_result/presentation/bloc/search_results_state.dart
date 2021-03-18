@@ -26,5 +26,6 @@ class Error extends SearchResultState {
   final String message;
   Error(this.message);
 
+  @override
   List<Object> get props => [message];
 }

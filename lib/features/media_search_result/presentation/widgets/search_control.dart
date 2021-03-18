@@ -20,23 +20,23 @@ class _SearchControlState extends State<SearchControl> {
       ),
       Row(
         children: <Widget>[
-          RaisedButton(
-            child: Text("Album"),
+          ElevatedButton(
             onPressed: () {
               addEvent(1);
             },
+            child: const Text("Album"),
           ),
-          RaisedButton(
-            child: Text("Movie"),
+          ElevatedButton(
             onPressed: () {
               addEvent(2);
             },
+            child: const Text("Movie"),
           ),
-          RaisedButton(
-            child: Text("TV Show"),
+          ElevatedButton(
             onPressed: () {
               addEvent(3);
             },
+            child: const Text("TV Show"),
           )
         ],
       )

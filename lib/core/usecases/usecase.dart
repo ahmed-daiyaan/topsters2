@@ -11,7 +11,7 @@ abstract class Usecase<Type, Params> {
 class Params extends Equatable {
   final String searchQuery;
 
-  Params({@required this.searchQuery});
+  const Params({@required this.searchQuery});
 
   @override
   List<Object> get props => [searchQuery];

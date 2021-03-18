@@ -10,6 +10,6 @@ class GetTVShowSearchResult implements Usecase<SearchResult, Params> {
   GetTVShowSearchResult(this.repository);
   @override
   Future<Either<Failure, SearchResult>> call(Params params) async {
-    return await repository.getTVShowSearchResult(params.searchQuery);
+    return repository.getTVShowSearchResult(params.searchQuery);
   }
 }

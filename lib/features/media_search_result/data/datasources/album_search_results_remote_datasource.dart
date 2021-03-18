@@ -16,15 +16,11 @@ class AlbumSearchRemoteDataSourceImpl
   @override
   Future<AlbumSearchResultModel> getAlbumSearchResult(
       String searchQuery) async {
-    final String _apiKey = "3c44f1e47b785beb3cd9883ac7a1e062";
+    const String _apiKey = "3c44f1e47b785beb3cd9883ac7a1e062";
     final response = await client.get(
-        "https://ws.audioscrobbler.com/2.0/?method=album.search&album=" +
-            searchQuery +
-            "&api_key=" +
-            _apiKey +
-            "&format=json&limit=100");
+        'https://ws.audioscrobbler.com/2.0/?method=album.search&album=$searchQuery&api_key=$_apiKey&format=json&limit=100');
     if (response.statusCode == 200) {
-      var parsedJson = await compute(decodeJson, response.body);
+      final parsedJson = await compute(decodeJson, response.body);
       return AlbumSearchResultModel.fromJson(parsedJson);
     } else {
       throw ServerException(Error());
@@ -32,6 +28,6 @@ class AlbumSearchRemoteDataSourceImpl
   }
 }
 
-Future<Map<String, dynamic>> decodeJson(var response) async {
+Future<dynamic> decodeJson(String response) async {
   return json.decode(response);
 }

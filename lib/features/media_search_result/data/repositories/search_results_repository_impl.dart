@@ -10,7 +10,9 @@ import '../datasources/album_search_results_remote_datasource.dart';
 import '../datasources/movie_search_results_remote_datasource.dart';
 import '../datasources/tvshow_search_results_remote_data_source.dart';
 
-typedef Future<SearchResult> _MediaChooser();
+// ignore: avoid_private_typedef_functions
+// ignore: prefer_generic_function_type_aliases
+typedef Future<SearchResult> MediaChooser();
 
 class SearchResultRepositoryImpl implements SearchResultRepository {
   final AlbumSearchResultRemoteDataSource albumRemoteDataSource;
@@ -27,7 +29,7 @@ class SearchResultRepositoryImpl implements SearchResultRepository {
   @override
   Future<Either<Failure, SearchResult>> getAlbumSearchResult(
       String searchQuery) async {
-    return await _getResult(() {
+    return _getResult(() {
       return albumRemoteDataSource.getAlbumSearchResult(searchQuery);
     });
   }
@@ -35,7 +37,7 @@ class SearchResultRepositoryImpl implements SearchResultRepository {
   @override
   Future<Either<Failure, SearchResult>> getMovieSearchResult(
       String searchQuery) async {
-    return await _getResult(() {
+    return _getResult(() {
       return movieRemoteDataSource.getMovieSearchResult(searchQuery);
     });
   }
@@ -43,13 +45,13 @@ class SearchResultRepositoryImpl implements SearchResultRepository {
   @override
   Future<Either<Failure, SearchResult>> getTVShowSearchResult(
       String searchQuery) async {
-    return await _getResult(() {
+    return _getResult(() {
       return tvShowRemoteDataSource.getTVShowSearchResult(searchQuery);
     });
   }
 
   Future<Either<Failure, SearchResult>> _getResult(
-    _MediaChooser getMedia,
+    MediaChooser getMedia,
   ) async {
     if (await networkInfo.isConnected) {
       try {
@@ -58,7 +60,8 @@ class SearchResultRepositoryImpl implements SearchResultRepository {
       } on ServerException {
         return Left(ServerFailure());
       }
-    } else
-      return (Left(ServerFailure()));
+    } else {
+      return Left(ServerFailure());
+    }
   }
 }

@@ -18,34 +18,25 @@ class MovieSearchRemoteDataSourceImpl
   @override
   Future<MovieSearchResultModel> getMovieSearchResult(
       String searchQuery) async {
-    final String _apiKey = "0a239c3800565940613463165cf38863";
-    List<Map<String, dynamic>> responses = List<Map<String, dynamic>>();
+    const String _apiKey = "0a239c3800565940613463165cf38863";
+    final List<Map<String, dynamic>> responses = [];
     Response undecodedResponse;
     final initialResponse = await client.get(
-        "https://api.themoviedb.org/3/search/movie?api_key=" +
-            _apiKey +
-            "&query=" +
-            searchQuery +
-            "&language=en-US&include_adult=false");
-    var pagesDecodeJson = await compute(decodeJson, initialResponse.body);
-    int pages = pagesDecodeJson['total_pages'];
-    responses.add(pagesDecodeJson);
+        "https://api.themoviedb.org/3/search/movie?api_key=$_apiKey&query=$searchQuery&language=en-US&include_adult=false");
+    final pagesDecodeJson = await compute(decodeJson, initialResponse.body);
+    int pages = pagesDecodeJson['total_pages'] as int;
+    responses.add(pagesDecodeJson as Map<String, dynamic>);
     if (pages > 5) pages = 5;
     for (int i = 2; i <= pages; i++) {
       undecodedResponse = await client.get(
-          "https://api.themoviedb.org/3/search/movie?api_key=" +
-              _apiKey +
-              "&query=" +
-              searchQuery +
-              "&language=en-US&include_adult=false&page=" +
-              i.toString());
-      var response = await compute(decodeJson, undecodedResponse.body);
-      responses.add(response);
+          "https://api.themoviedb.org/3/search/movie?api_key=$_apiKey&query=$searchQuery&language=en-US&include_adult=false&page=$i");
+      final response = await compute(decodeJson, undecodedResponse.body);
+      responses.add(response as Map<String, dynamic>);
     }
     return MovieSearchResultModel.fromJson(responses);
   }
 }
 
-Future<Map<String, dynamic>> decodeJson(var response) async {
+Future<dynamic> decodeJson(String response) async {
   return json.decode(response);
 }
