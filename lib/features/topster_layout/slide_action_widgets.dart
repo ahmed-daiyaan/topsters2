@@ -43,7 +43,7 @@ class _InsertActionState extends State<InsertAction> {
                   .map<DropdownMenuItem<int>>((int value) {
                 return DropdownMenuItem<int>(
                   value: value,
-                  child: Text('$value'),
+                  child: Text('$value', style: const TextStyle(fontSize: 6)),
                 );
               }).toList(),
             )),
@@ -57,6 +57,7 @@ class _InsertActionState extends State<InsertAction> {
                         child: Center(
                   child: IconButton(
                     icon: const Icon(Icons.arrow_upward),
+                    iconSize: 5,
                     onPressed: () {
                       widget.insertRow(widget.rowIndex, boxCount);
                     },
@@ -155,7 +156,7 @@ class TitleAction extends StatelessWidget {
           'Insert Title Above',
           textAlign: TextAlign.center,
           style:
-              GoogleFonts.aBeeZee(fontSize: 12, color: const Color(0xFFEBEBEB)),
+              GoogleFonts.aBeeZee(fontSize: 6, color: const Color(0xFFEBEBEB)),
         ),
         icon: Icons.text_fields,
         //caption: 'T',

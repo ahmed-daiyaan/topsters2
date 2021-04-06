@@ -1,124 +1,118 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animated_button/flutter_animated_button.dart';
+import 'package:flutter_overlay_loader/flutter_overlay_loader.dart';
+
 import 'package:provider/provider.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:topsters/features/sliding_panel.dart/pages/design_page.dart';
+import 'package:tab_indicator_styler/tab_indicator_styler.dart';
 import 'package:topsters/features/sliding_panel.dart/pages/search_page.dart';
-import 'package:topsters/features/sliding_panel.dart/widgets/design_tab.dart';
-import 'package:topsters/features/sliding_panel.dart/widgets/search_tab.dart';
+
 import 'package:topsters/features/topster_layout/controller/layout_controller.dart';
 import 'package:topsters/features/topster_layout/controller/topster_box_controller.dart';
 import 'package:topsters/features/topster_layout/layout.dart';
 
 class SlidingPanel extends StatefulWidget {
+  final List<int> rowsBoxCount;
+  final int totalBoxes;
+  const SlidingPanel({Key key, this.rowsBoxCount, this.totalBoxes})
+      : super(key: key);
   @override
   _SlidingPanelState createState() => _SlidingPanelState();
 }
 
-class _SlidingPanelState extends State<SlidingPanel> {
+class _SlidingPanelState extends State<SlidingPanel>
+    with TickerProviderStateMixin {
   final PanelController panelController = PanelController();
+  int index = 0;
+  TabController tabController;
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      Future.delayed(const Duration(milliseconds: 1500), () {
+        Loader.hide();
+      });
+    });
+    tabController = TabController(vsync: this, length: 2);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-        providers: [
-          ChangeNotifierProvider<LayoutController>(
-              create: (context) => LayoutController()),
-          ChangeNotifierProvider<TabChange>(create: (context) => TabChange()),
-          ChangeNotifierProvider<Options>(create: (context) => Options()),
-          ChangeNotifierProvider<TopsterBoxesController>(
-            create: (context) =>
-                TopsterBoxesController.initialize(totalBoxes: 40),
-          ),
-        ],
-        child: SlidingUpPanel(
-          maxHeight: 400,
-          snapPoint: 0.3,
-          controller: panelController,
-          panelBuilder: (controller) {
-            final PageController pageController = PageController();
-            return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  TabStack(controller: pageController),
-                  // Consumer<TabChange>(
-                  //   builder: (context, tabChange, child) {
-                  //     print('re');
-                  //     return IndexedStack(
-                  //         index: Provider.of<TabChange>(context, listen: false)
-                  //                 .openTab
-                  //             ? 0
-                  //             : 1,
-                  //         children: <Widget>[
-                  //           SearchPage(
-                  //             controller: controller,
-                  //             panelController: panelController,
-                  //           ),
-                  //           DesignPage(),
-                  //         ]);
-                  //   },
-                  // ),
-                  Expanded(
-                    child: PageView(
-                      onPageChanged: (_) {},
-                      controller: pageController,
-                      children: [
-                        SearchPage(
-                          controller: controller,
-                          panelController: panelController,
+    return Scaffold(
+      body: MultiProvider(
+          providers: [
+            ChangeNotifierProvider<LayoutController>(
+                create: (context) => LayoutController()),
+            // ChangeNotifierProvider<TabChange>(create: (context) => TabChange()),
+            ChangeNotifierProvider<Options>(create: (context) => Options()),
+            ChangeNotifierProvider<TopsterBoxesController>(
+              create: (context) => TopsterBoxesController.initialize(
+                  totalBoxes: widget.totalBoxes),
+            ),
+          ],
+          child: SlidingUpPanel(
+            maxHeight: 400,
+            snapPoint: 0.3,
+            controller: panelController,
+            panelBuilder: (controller) {
+              return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    DefaultTabController(
+                      length: 2,
+                      child: SizedBox(
+                        height: 50,
+                        child: TabBar(
+                          labelPadding: EdgeInsets.zero,
+                          labelStyle: const TextStyle(fontSize: 12),
+                          controller: tabController,
+                          onTap: (int index) {
+                            tabController.animateTo(index);
+                          },
+                          tabs: const [
+                            Tab(
+                              icon: Icon(Icons.search, size: 16),
+                              text: "Search",
+                            ),
+                            Tab(
+                              icon: Icon(Icons.format_paint, size: 16),
+                              text: "Design",
+                            ),
+                          ],
+                          indicatorColor: const Color(0xFFaa6124),
+                          unselectedLabelColor: const Color(0xFF474646),
+                          labelColor: const Color(0xFFebebeb),
+                          indicator: RectangularIndicator(
+                            bottomRightRadius: 5,
+                            bottomLeftRadius: 5,
+                            horizontalPadding: 10,
+                            verticalPadding: 2,
+                            color: const Color(0xFF050505),
+                          ),
                         ),
-                        DesignPage()
-                      ],
+                      ),
                     ),
-                  ),
-                ]);
-          },
-          // ignore: prefer_const_constructors
-          body: TopsterLayout(
-            // ignore: prefer_const_literals_to_create_immutables
-            rowsBoxCount: [5, 6, 6, 7, 7, 9],
-          ),
-        ));
-  }
-}
-
-class TabStack extends StatelessWidget {
-  const TabStack({
-    Key key,
-    this.controller,
-  }) : super(key: key);
-
-  final PageController controller;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      height: 30,
-      width: MediaQuery.of(context).size.width,
-      child: Consumer<TabChange>(
-        builder: (context, tabChange, child) {
-          return Stack(
-              fit: StackFit.expand,
-              children: tabChange.openTab
-                  ? [
-                      DesignTab(controller: controller),
-                      SearchTab(controller: controller)
-                    ]
-                  : [
-                      SearchTab(controller: controller),
-                      DesignTab(
-                        controller: controller,
-                      )
-                    ]);
-        },
-      ),
+                    Expanded(
+                      child: TabBarView(
+                          controller: tabController,
+                          children: <Widget>[
+                            SearchPage(
+                                controller: controller,
+                                panelController: panelController),
+                            DesignPage()
+                          ]),
+                    )
+                  ]);
+            },
+            // ignore: prefer_const_constructors
+            body: TopsterLayout(
+              // ignore: prefer_const_literals_to_create_immutables
+              rowsBoxCount: widget.rowsBoxCount,
+            ),
+          )),
     );
-  }
-}
-
-class TabChange extends ChangeNotifier {
-  bool openTab = true;
-
-  void switchTabs() {
-    openTab = !openTab;
-    notifyListeners();
   }
 }

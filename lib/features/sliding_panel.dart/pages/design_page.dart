@@ -121,10 +121,10 @@ class _BorderSizeSliderState extends State<BorderSizeSlider> {
 class Options extends ChangeNotifier {
   double boxPadding = 1.0;
   Color boxBorderColor = Colors.black;
-  Color boxColor = Colors.red;
+  Color boxColor = const Color(0xFF050505);
   double boxBorderRadius = 0.0;
   double boxBorderSize = 0.0;
-  double chartPadding = 0.0;
+  double chartPadding = 10.0;
   double chartBorderRadius = 0.0;
   double chartBorderSize = 0.0;
   Color chartBorderColor = Colors.black;

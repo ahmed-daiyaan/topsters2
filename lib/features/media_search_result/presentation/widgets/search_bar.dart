@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:provider/provider.dart';
 import 'package:rxdart/subjects.dart';
 
 import '../bloc/search_results_bloc.dart';
 
 BehaviorSubject<bool> searchBarStatusStream = BehaviorSubject<bool>();
 
-class Searchh extends StatefulWidget {
+class SearchBar extends StatefulWidget {
   @override
-  _SearchhState createState() => _SearchhState();
+  _SearchBarState createState() => _SearchBarState();
 }
 
 void addEvent(BuildContext context, String searchQuery) {
@@ -16,7 +17,7 @@ void addEvent(BuildContext context, String searchQuery) {
       .add(GetSearchResultForAlbum(searchQuery));
 }
 
-class _SearchhState extends State<Searchh> {
+class _SearchBarState extends State<SearchBar> {
   // @override
   // void dispose() {
   //   searchBarStatusStream.close();
@@ -26,19 +27,23 @@ class _SearchhState extends State<Searchh> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-        height: 55,
+        height: 45,
         width: MediaQuery.of(context).size.width,
-        child: Stack(children: <Widget>[
-          AnimatedTextField(),
-          AnimatedSearchIcon(),
-        ]));
+        child: ChangeNotifierProvider<SearchQueryController>(
+            create: (context) => SearchQueryController(),
+            builder: (context, child) {
+              return Stack(children: <Widget>[
+                AnimatedTextField(),
+                AnimatedSearchIcon(),
+              ]);
+            }));
   }
 }
 
 class AnimatedSearchIcon extends StatelessWidget {
   final Widget circleAvatar = CircleAvatar(
     radius: 20,
-    backgroundColor: Colors.blue,
+    backgroundColor: const Color(0xFF050505),
     child: AnimatedIconSwitcher(),
   );
   @override
@@ -49,7 +54,7 @@ class AnimatedSearchIcon extends StatelessWidget {
         builder: (context, snapshot) {
           return AnimatedPositioned(
               top: 3.5,
-              duration: const Duration(milliseconds: 1000),
+              duration: const Duration(milliseconds: 500),
               curve: Curves.easeInOutCubic,
               left: snapshot.data
                   ? MediaQuery.of(context).size.width -
@@ -64,42 +69,59 @@ class AnimatedSearchIcon extends StatelessWidget {
 class AnimatedIconSwitcher extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return AnimatedSwitcher(
-      switchInCurve: Curves.easeInCubic,
-      switchOutCurve: Curves.easeInOutCubic,
-      duration: const Duration(milliseconds: 1000),
-      transitionBuilder: (child, Animation<double> animation) {
-        return ScaleTransition(scale: animation, child: child);
-      },
-      child: StreamBuilder<bool>(
-          stream: searchBarStatusStream,
-          initialData: false,
-          builder: (context, snapshot) {
-            return snapshot.data
-                ? ClearIcon(snapshot.data)
-                : SearchIcon(snapshot.data);
-          }),
-    );
+    return StreamBuilder<bool>(
+        stream: searchBarStatusStream,
+        initialData: false,
+        builder: (context, snapshot) {
+          return AnimatedSwitcher(
+              transitionBuilder: (child, animation) =>
+                  FadeTransition(opacity: animation, child: child),
+              duration: const Duration(milliseconds: 250),
+              child: snapshot.data
+                  ? ClearIcon(snapshot.data)
+                  : SearchIcon(snapshot.data));
+        });
+    //);
   }
 }
 
-class AnimatedTextField extends StatelessWidget {
-  final TextEditingController searchQuery = TextEditingController();
+class AnimatedTextField extends StatefulWidget {
+  @override
+  _AnimatedTextFieldState createState() => _AnimatedTextFieldState();
+}
 
+class _AnimatedTextFieldState extends State<AnimatedTextField> {
   @override
   Widget build(BuildContext context) {
+    final TextEditingController searchQuery =
+        Provider.of<SearchQueryController>(context, listen: false).searchQuery;
     final Widget textField = TextField(
+      cursorHeight: 20,
+      style: const TextStyle(fontSize: 14),
+      textInputAction: TextInputAction.search,
+      cursorColor: const Color(0xFF050505),
       controller: searchQuery,
       keyboardType: TextInputType.text,
       onSubmitted: (_) {
-        debugPrint(_);
+        searchBarStatusStream.add(false);
         addEvent(context, searchQuery.text);
       },
-      decoration: InputDecoration(
-        hintText: "search here!",
+      decoration: const InputDecoration(
+        hoverColor: Color(0xFF050505),
+        isDense: true,
+        prefixIcon: Icon(
+          Icons.image_search_outlined,
+          color: Color(0xFF050505),
+        ),
+        focusColor: Color(0xFF050505),
+        focusedBorder: OutlineInputBorder(
+          gapPadding: 2,
+          borderSide: BorderSide(color: Color(0xFF050505)),
+        ),
+        contentPadding: EdgeInsets.all(12),
         border: OutlineInputBorder(
-            borderSide: const BorderSide(color: Colors.blue),
-            borderRadius: BorderRadius.circular(100)),
+          borderSide: BorderSide(color: Color(0xFF050505)),
+        ),
       ),
     );
     return StreamBuilder<bool>(
@@ -109,8 +131,8 @@ class AnimatedTextField extends StatelessWidget {
         return Center(
           child: AnimatedContainer(
               curve: Curves.easeInOutCubic,
-              duration: const Duration(milliseconds: 1000),
-              height: 50,
+              duration: const Duration(milliseconds: 500),
+              height: 30,
               width: snapshot.data
                   ? MediaQuery.of(context).size.width -
                       (MediaQuery.of(context).size.width / 10 +
@@ -131,9 +153,13 @@ class SearchIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return IconButton(
+        splashRadius: 26,
         iconSize: 20,
         key: UniqueKey(),
-        icon: const Icon(Icons.search),
+        icon: const Icon(
+          Icons.image_search_rounded,
+          color: Color(0xFFEBEBEB),
+        ),
         onPressed: () {
           !status
               ? searchBarStatusStream.sink.add(!status)
@@ -149,15 +175,23 @@ class ClearIcon extends StatelessWidget {
   const ClearIcon(this.status);
   @override
   Widget build(BuildContext context) {
+    final TextEditingController searchQuery =
+        Provider.of<SearchQueryController>(context, listen: false).searchQuery;
     return IconButton(
+      splashRadius: 26,
       iconSize: 20,
       key: UniqueKey(),
-      icon: const Icon(Icons.clear),
+      icon: const Icon(Icons.clear, color: Color(0xFFEBEBEB)),
       onPressed: () {
-        status
-            ? searchBarStatusStream.sink.add(!status)
-            : searchBarStatusStream.sink.add(status);
+        searchQuery.clear();
+        // status
+        //     ? searchBarStatusStream.sink.add(!status)
+        //     : searchBarStatusStream.sink.add(status);
       },
     );
   }
+}
+
+class SearchQueryController extends ChangeNotifier {
+  final TextEditingController searchQuery = TextEditingController();
 }
