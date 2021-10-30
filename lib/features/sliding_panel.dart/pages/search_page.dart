@@ -111,45 +111,42 @@ class ResultsDisplay extends StatelessWidget {
             SizedBox(
               height: 90,
               width: 90,
-              child: GridTile(
-                child: LongPressDraggable<TopsterBoxData>(
-                    childWhenDragging: image,
-                    feedback: StreamBuilder<double>(
-                        stream: adaptiveHeight,
-                        initialData: 95,
-                        builder: (context, snapshot) {
-                          return AnimatedContainer(
-                              duration: const Duration(milliseconds: 150),
-                              height: snapshot.data,
-                              width: snapshot.data,
-                              child: image);
-                        }),
-                    data: TopsterBoxData(
-                        image: result.mediaImages[index].toString(),
-                        name: result.mediaNames[index].toString(),
-                        secondaryField:
-                            result.secondaryFields[index].toString()),
-                    onDragStarted: () {
-                      // precacheImage(
-                      //     NetworkImage(
-                      //       result.mediaImages[index].toString(),
-                      //       //fit: BoxFit.fill,
-                      //     ),
-                      //     context);
-                      panelController.close();
-                      controller.animateTo(0,
-                          duration: const Duration(seconds: 2),
-                          curve: Curves.easeInOut);
-                    },
-                    onDragEnd: (details) {
-                      adaptiveHeight.add(95);
+              child: LongPressDraggable<TopsterBoxData>(
+                  childWhenDragging: image,
+                  feedback: StreamBuilder<double>(
+                      stream: adaptiveHeight,
+                      initialData: 95,
+                      builder: (context, snapshot) {
+                        return AnimatedContainer(
+                            duration: const Duration(milliseconds: 150),
+                            height: snapshot.data,
+                            width: snapshot.data,
+                            child: image);
+                      }),
+                  data: TopsterBoxData(
+                      image: result.mediaImages[index].toString(),
+                      name: result.mediaNames[index].toString(),
+                      secondaryField: result.secondaryFields[index].toString()),
+                  onDragStarted: () {
+                    // precacheImage(
+                    //     NetworkImage(
+                    //       result.mediaImages[index].toString(),
+                    //       //fit: BoxFit.fill,
+                    //     ),
+                    //     context);
+                    panelController.close();
+                    controller.animateTo(0,
+                        duration: const Duration(milliseconds: 500),
+                        curve: Curves.easeInOut);
+                  },
+                  onDragEnd: (details) {
+                    adaptiveHeight.add(95);
 
-                      panelController.open();
-                    },
-                    child: DraggableResult(image: image)
-                    //child: image
-                    ),
-              ),
+                    panelController.open();
+                  },
+                  child: DraggableResult(image: image)
+                  //child: image
+                  ),
             ),
             const Padding(padding: EdgeInsets.all(2)),
             Flexible(

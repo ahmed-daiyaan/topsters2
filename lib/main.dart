@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:topsters/features/sliding_panel.dart/pages/design_page.dart';
+import 'package:topsters/features/topster_layout/controller/layout_controller.dart';
+import 'package:topsters/features/topster_layout/controller/topster_box_controller.dart';
+import 'package:topsters/features/topster_layout/model/topster_box_model.dart';
 
 import 'core/injection_container.dart' as di;
 import 'features/start_screen/start_screen.dart';
@@ -13,7 +18,17 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return
+        //  MultiProvider(
+        //   providers: [
+        //     ChangeNotifierProvider(create: (context) => Options()),
+        //     ChangeNotifierProvider(
+        //         create: (context) => TopsterBoxesController(
+        //             topsterStore:
+        //                 List<TopsterBoxData>.generate(40, (index) => null)))
+        //   ],
+        //   child:
+        MaterialApp(
       //showPerformanceOverlay: true,
       title: 'Topsters',
       home: Scaffold(

@@ -79,23 +79,7 @@ class TopsterDraggable extends StatelessWidget {
       image: boxData.image,
       fit: BoxFit.cover,
     );
-    final Widget box = Consumer<Options>(
-        builder: (context, opt, child) {
-          return Container(
-            decoration: BoxDecoration(
-              color: opt.boxColor,
-              border: Border.all(
-                color: opt.boxBorderColor,
-                width: opt.boxBorderSize,
-              ),
-              borderRadius: BorderRadius.circular(opt.boxBorderRadius),
-            ),
-            child: ClipRRect(
-                borderRadius: BorderRadius.circular(opt.boxBorderRadius),
-                child: child),
-          );
-        },
-        child: image);
+    final Widget box = image;
 
     return GestureDetector(
       onDoubleTap: () => remove = true,

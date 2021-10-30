@@ -81,9 +81,9 @@ class LayoutController extends ChangeNotifier {
     notifyListeners();
   }
 
-  // int calculateTotalBoxes() {
-  //   int totalBoxes = rowsBoxCount.fold<int>(
-  //       0, (previousValue, element) => previousValue + element);
-  //   return totalBoxes;
-  // }
+  int calculateTotalBoxes() {
+    final int totalBoxes = rowsBoxCount.fold<int>(
+        0, (previousValue, element) => previousValue + element);
+    return totalBoxes;
+  }
 }

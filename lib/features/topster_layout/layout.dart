@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:provider/provider.dart';
 import 'package:topsters/features/sliding_panel.dart/pages/design_page.dart';
+import 'package:topsters/features/topster_layout/controller/topster_box_controller.dart';
 import 'package:topsters/features/topster_layout/slide_action_widgets.dart';
 import 'package:topsters/features/topster_layout/topster_grid_row.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -23,80 +24,96 @@ class _TopsterLayoutState extends State<TopsterLayout> {
   @override
   Widget build(BuildContext context) {
     controller.set(widget.rowsBoxCount.length);
-    return ChangeNotifierProvider<LayoutController>(
-      create: (context) =>
-          LayoutController.initialize(widget.rowsBoxCount, context),
-      child: Stack(
-        children: <Widget>[
-          LayoutBuilder(
-            builder: (BuildContext context, BoxConstraints constraints) {
-              return Consumer<Options>(builder: (context, options, child) {
-                return AnimatedContainer(
-                  duration: const Duration(milliseconds: 5),
-                  //constraints: constraints,
-                  padding: EdgeInsets.all(options.chartPadding),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFEBEBEB),
-                    //shape: BoxShape.circle,
-                    // gradient:
-                    // FlutterGradients.colorfulPeach(
-                    //     type: GradientType.radial,
-                    //     radius: 0.7,
-                    //     tileMode: TileMode.decal),
-                    borderRadius: BorderRadius.all(
-                        Radius.circular(options.chartBorderRadius)),
-                    border: Border.all(
-                        color: options.chartBorderColor,
-                        width: options.boxBorderSize),
-                  ),
-                  child: child,
-                );
-              }, child: Consumer<LayoutController>(
-                builder: (context, layoutController, child) {
-                  return ReorderableListView(
-                    buildDefaultDragHandles: false,
-                    anchor: 0.1,
-                    proxyDecorator: (widget, index, animation) {
-                      return TopsterGridRow(
-                        rowIndex: index,
-                        rowsBoxCount: layoutController.rowsBoxCount,
-                        count: layoutController.rowsBoxCount[index],
-                      );
-                    },
-                    onReorder: layoutController.onReorder,
-                    children: List<Widget>.generate(
-                        layoutController.rowsBoxCount.length,
-                        (index) => MultiSelectItem(
-                              key: UniqueKey(),
-                              isSelecting: controller.isSelecting,
-                              onSelected: () {
-                                controller.toggle(index);
-                                debugPrint(
-                                    controller.selectedIndexes.toString());
-                                debugPrint(index.toString());
-                              },
-                              child: RowBuilder(
-                                layoutController: layoutController,
-                                rowIndex: index,
-                                key: UniqueKey(),
-                              ),
-                              //      ),
-                            )),
+    return
+        // ChangeNotifierProvider<LayoutController>(
+        //   create: (context) =>
+        //       LayoutController.initialize(widget.rowsBoxCount, context),
+        //   child:
+        Stack(
+      children: <Widget>[
+        LayoutBuilder(
+          builder: (BuildContext context, BoxConstraints constraints) {
+            return Consumer<Options>(
+                builder: (context, options, child) {
+                  return AnimatedContainer(
+                    duration: const Duration(milliseconds: 5),
+                    //constraints: constraint
+                    padding: EdgeInsets.all(options.chartPadding),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFEBEBEB),
+                      //shape: BoxShape.circle,
+                      // gradient:
+                      // FlutterGradients.colorfulPeach(
+                      //     type: GradientType.radial,
+                      //     radius: 0.7,
+                      //     tileMode: TileMode.decal),
+                      borderRadius: BorderRadius.all(
+                          Radius.circular(options.chartBorderRadius)),
+                      border: Border.all(
+                          color: options.chartBorderColor,
+                          width: options.chartBorderSize),
+                    ),
+                    child: child,
                   );
                 },
-              ));
-            },
-          ),
-        ],
-      ),
+                child: const TopsterGridList());
+          },
+        ),
+      ],
+      //),
     );
   }
+}
 
-  // int calculateTotalBoxes() {
-  //   int totalBoxes = widget.rowsBoxCount
-  //       .fold<int>(0, (previousValue, element) => previousValue + element);
-  //   return totalBoxes;
-  // }
+class TopsterGridList extends StatelessWidget {
+  const TopsterGridList({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<LayoutController>(
+      builder: (context, layoutController, child) {
+        return MediaQuery.removePadding(
+          context: context,
+          removeTop: true,
+          child: ReorderableListView(
+            buildDefaultDragHandles: false,
+            proxyDecorator: (widget, index, animation) {
+              return Container()
+
+                  // TopsterGridRow(
+                  //   rowIndex: index,
+                  //   rowsBoxCount: layoutController.rowsBoxCount,
+                  //   count: layoutController.rowsBoxCount[index],
+                  // )
+                  ;
+            },
+            onReorder: layoutController.onReorder,
+            children: List<Widget>.generate(
+              layoutController.rowsBoxCount.length,
+              (index) =>
+                  // MultiSelectItem(
+                  //   key: UniqueKey(),
+                  //   isSelecting: controller.isSelecting,
+                  //   onSelected: () {
+                  //     controller.toggle(index);
+                  //     debugPrint(controller.selectedIndexes.toString());
+                  //     debugPrint(index.toString());
+                  //   },
+                  //   child:
+                  RowBuilder(
+                layoutController: layoutController,
+                rowIndex: index,
+                key: UniqueKey(),
+              ),
+            ),
+          ),
+          //),
+        );
+      },
+    );
+  }
 }
 
 class RowBuilder extends StatelessWidget {
@@ -109,6 +126,11 @@ class RowBuilder extends StatelessWidget {
     @required this.key,
     @required this.rowIndex,
   });
+  int calculateTotalBoxes() {
+    final int totalBoxes = layoutController.rowsBoxCount
+        .fold<int>(0, (previousValue, element) => previousValue + element);
+    return totalBoxes;
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -19,7 +19,10 @@ class _GridPickerState extends State<GridPicker> {
       children: [
         const Padding(
           padding: EdgeInsets.only(top: 16.0),
-          child: Text("Select your grid size"),
+          child: Text(
+            "Select your grid size",
+            style: TextStyle(color: Color(0xFF050505), fontSize: 18),
+          ),
         ),
         Padding(
             padding: const EdgeInsets.only(top: 8.0, bottom: 10.0),
@@ -62,10 +65,10 @@ class GridSelectView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(top: 14.0),
+      padding: const EdgeInsets.only(top: 20.0),
       child: SizedBox(
-        height: 200,
-        width: 200,
+        height: 220,
+        width: 220,
         child: GridView.builder(
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: value.round(),

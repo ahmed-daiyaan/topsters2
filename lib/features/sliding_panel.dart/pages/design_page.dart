@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:smart_select/smart_select.dart';
+import 'package:cyclop/cyclop.dart';
 import 'package:topsters/features/save_topsters/data_to_json.dart';
 
 class DesignPage extends StatefulWidget {
@@ -17,30 +18,105 @@ class _DesignPageState extends State<DesignPage>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return Container(
-      //height: 300,
-      color: Colors.pink,
-      child: ListView(
-        controller: ScrollController(),
-        shrinkWrap: true,
-        children: [
-          SmartSelect<String>.single(
-              modalType: S2ModalType.bottomSheet,
-              choiceItems: options,
-              title: 'color',
-              value: 'hi',
-              onChange: (n) => {}),
-          const SaveTopster(),
-          const PaddingSlider(),
-          BorderRadiusSlider(),
-          BorderSizeSlider()
-        ],
-      ),
+    return ListView(
+      controller: ScrollController(),
+      shrinkWrap: true,
+      children: [
+        // SmartSelect<String>.single(
+        //     modalType: S2ModalType.bottomSheet,
+        //     choiceItems: options,
+        //     title: 'color',
+        //     value: 'hi',
+        //     onChange: (n) => {}),
+        //const SaveTopster(),
+        const PaddingSlider(),
+        BoxBorderRadiusSlider(),
+        ChartBorderSizeSlider(),
+        BoxBorderSlider(),
+        BoxRadiusSlider(),
+        //const ColorPicker()
+      ],
     );
   }
 
   @override
   bool get wantKeepAlive => true;
+}
+
+// class ColorPicker extends StatelessWidget {
+//   const ColorPicker({
+//     Key key,
+//   }) : super(key: key);
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return ColorButton(
+//       color: Provider.of<Options>(context, listen: false).boxBorderColor,
+//       onColorChanged: (newColor) {
+//         Provider.of<Options>(context, listen: false)
+//             .changeBoxBorderColor(newColor);
+//       },
+//       size: 24,
+//     );
+//   }
+// }
+
+class BoxBorderSlider extends StatefulWidget {
+  @override
+  _BoxBorderSliderState createState() => _BoxBorderSliderState();
+}
+
+class _BoxBorderSliderState extends State<BoxBorderSlider> {
+  double value = 0.0;
+  @override
+  Widget build(BuildContext context) {
+    debugPrint(
+        Provider.of<Options>(context, listen: false).boxBorderSize.toString());
+    return Column(
+      children: [
+        const Text("Box Border Size"),
+        Slider(
+            max: 25.0,
+            label: value.toString(),
+            value: value,
+            onChanged: (newValue) {
+              setState(() {
+                Provider.of<Options>(context, listen: false)
+                    .changeBoxBorderSize(newValue);
+                value = newValue;
+              });
+            }),
+      ],
+    );
+  }
+}
+
+class BoxRadiusSlider extends StatefulWidget {
+  @override
+  _BoxRadiusSliderState createState() => _BoxRadiusSliderState();
+}
+
+class _BoxRadiusSliderState extends State<BoxRadiusSlider> {
+  double value = 0.0;
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const Text("Box Radius"),
+        Slider(
+            max: 25.0,
+            label: value.toString(),
+            value: value,
+            onChanged: (newValue) {
+              setState(() {
+                Provider.of<Options>(context, listen: false)
+                    .changeBoxRadius(newValue);
+                value = newValue;
+              });
+            }),
+      ],
+    );
+  }
 }
 
 class PaddingSlider extends StatefulWidget {
@@ -56,65 +132,85 @@ class _PaddingSliderState extends State<PaddingSlider> {
   double value = 1.0;
   @override
   Widget build(BuildContext context) {
-    return Slider(
-        min: 1.0,
-        max: 25.0,
-        label: value.toString(),
-        value: value,
-        onChanged: (newValue) {
-          setState(() {
-            Provider.of<Options>(context, listen: false)
-                .changeBoxPadding(newValue);
-            value = newValue;
-          });
-        });
+    return Column(
+      children: [
+        const SizedBox(
+          height: 12,
+        ),
+        const Text(
+          "Padding",
+        ),
+        Slider(
+            max: 25.0,
+            label: value.toString(),
+            value: value,
+            onChanged: (newValue) {
+              setState(() {
+                Provider.of<Options>(context, listen: false)
+                    .changeBoxPadding(newValue);
+                value = newValue;
+              });
+            }),
+      ],
+    );
   }
 }
 
-class BorderRadiusSlider extends StatefulWidget {
+//TODO: Dont let boxes go circle
+class BoxBorderRadiusSlider extends StatefulWidget {
   @override
-  _BorderRadiusSliderState createState() => _BorderRadiusSliderState();
+  _BoxBorderRadiusSliderState createState() => _BoxBorderRadiusSliderState();
 }
 
-class _BorderRadiusSliderState extends State<BorderRadiusSlider> {
+class _BoxBorderRadiusSliderState extends State<BoxBorderRadiusSlider> {
   double value = 0.0;
   @override
   Widget build(BuildContext context) {
-    return Slider(
-        max: 25.0,
-        label: value.toString(),
-        value: value,
-        onChanged: (newValue) {
-          setState(() {
-            Provider.of<Options>(context, listen: false)
-                .changeBoxBorderRadius(newValue);
-            value = newValue;
-          });
-        });
+    return Column(
+      children: [
+        const Text("Rounded Corners"),
+        Slider(
+            max: 25.0,
+            label: value.toString(),
+            value: value,
+            onChanged: (newValue) {
+              setState(() {
+                Provider.of<Options>(context, listen: false)
+                    .changeBoxBorderRadius(newValue);
+                value = newValue;
+              });
+            }),
+      ],
+    );
   }
 }
 
-class BorderSizeSlider extends StatefulWidget {
+class ChartBorderSizeSlider extends StatefulWidget {
   @override
-  _BorderSizeSliderState createState() => _BorderSizeSliderState();
+  _ChartBorderSizeSliderState createState() => _ChartBorderSizeSliderState();
 }
 
-class _BorderSizeSliderState extends State<BorderSizeSlider> {
+class _ChartBorderSizeSliderState extends State<ChartBorderSizeSlider> {
   double value = 0.0;
   @override
   Widget build(BuildContext context) {
-    return Slider(
-        //min: 0.0,
-        max: 25.0,
-        label: value.toString(),
-        value: value,
-        onChanged: (newValue) {
-          setState(() {
-            Provider.of<Options>(context, listen: false)
-                .changeBoxBorderSize(newValue);
-            value = newValue;
-          });
-        });
+    return Column(
+      children: [
+        const Text("Chart Border Size"),
+        Slider(
+            //min: 0.0,
+            max: 25.0,
+            label: value.toString(),
+            value: value,
+            onChanged: (newValue) {
+              setState(() {
+                Provider.of<Options>(context, listen: false)
+                    .changeChartBorderSize(newValue);
+                value = newValue;
+              });
+            }),
+      ],
+    );
   }
 }
 
@@ -124,29 +220,40 @@ class Options extends ChangeNotifier {
   Color boxColor = const Color(0xFF050505);
   double boxBorderRadius = 0.0;
   double boxBorderSize = 0.0;
+  double boxRadius = 0.0;
   double chartPadding = 10.0;
   double chartBorderRadius = 0.0;
   double chartBorderSize = 0.0;
   Color chartBorderColor = Colors.black;
 
-  // ignore: use_setters_to_change_properties
+  void changeBoxRadius(double newValue) {
+    boxRadius = newValue;
+    notifyListeners();
+  }
+
   void changeChartPadding(double padding) {
     chartPadding = padding;
+    notifyListeners();
   }
 
-  // ignore: use_setters_to_change_properties
   void changeChartBorderRadius(double radius) {
     chartBorderRadius = radius;
+    notifyListeners();
   }
 
-  // ignore: use_setters_to_change_properties
   void changeChartBorderSize(double size) {
     chartBorderSize = size;
+    notifyListeners();
   }
 
-  // ignore: use_setters_to_change_properties
   void changeChartBorderColor(Color color) {
     chartBorderColor = color;
+    notifyListeners();
+  }
+
+  void changeBoxBorderColor(Color color) {
+    boxBorderColor = color;
+    notifyListeners();
   }
 
   void changeBoxBorderSize(double size) {

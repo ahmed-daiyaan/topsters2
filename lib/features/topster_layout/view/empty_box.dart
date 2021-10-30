@@ -6,16 +6,8 @@ class EmptyBox extends StatelessWidget {
   const EmptyBox();
   @override
   Widget build(BuildContext context) {
-    return Consumer<Options>(
-        builder: (context, value, child) => Container(
-              decoration: BoxDecoration(
-                color: value.boxColor,
-                borderRadius: BorderRadius.circular(value.boxBorderRadius),
-                border: Border.all(
-                  color: value.boxBorderColor,
-                  width: value.boxBorderSize,
-                ),
-              ),
-            ));
+    return Container(
+      color: const Color(0xFFBB1919),
+    );
   }
 }

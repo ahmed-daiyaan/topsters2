@@ -17,8 +17,21 @@ class AlbumSearchRemoteDataSourceImpl
   Future<AlbumSearchResultModel> getAlbumSearchResult(
       String searchQuery) async {
     const String _apiKey = "3c44f1e47b785beb3cd9883ac7a1e062";
-    final response = await client.get(
-        'https://ws.audioscrobbler.com/2.0/?method=album.search&album=$searchQuery&api_key=$_apiKey&format=json&limit=100');
+    final Uri uri = Uri(
+      host: 'ws.audioscrobbler.com',
+      scheme: 'https',
+      path: '2.0',
+      queryParameters: {
+        "method": "album.search",
+        "album": searchQuery,
+        "api_key": _apiKey,
+        "format": "json",
+        "limit": "100"
+      },
+      // query:
+      //     '?method=album.search&album=$searchQuery&api_key=$_apiKey&format=json&limit=100'
+    );
+    final response = await client.get(uri);
     if (response.statusCode == 200) {
       final parsedJson = await compute(decodeJson, response.body);
       return AlbumSearchResultModel.fromJson(parsedJson);

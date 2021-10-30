@@ -21,16 +21,39 @@ class TVShowSearchRemoteDataSourceImpl
     //final List<http.Response> undecodedResponses = List<http.Response>();
     final List<Map<String, dynamic>> responses = [];
     Response undecodedResponse;
-    final initialResponse = await client.get(
-        "https://api.themoviedb.org/3/search/tv?api_key=$_apiKey&query=$searchQuery&language=en-US&include_adult=false");
+    final initialResponse = await client.get(Uri(
+      scheme: 'https',
+      host: 'api.themoviedb.org',
+      path: '3/search/tv',
+      queryParameters: {
+        'api_key': _apiKey,
+        'query': searchQuery,
+        'language': 'en-US',
+        'include_adult': 'false'
+      },
+      // query:
+      //     "https://api.themoviedb.org/3/search/tv?api_key=$_apiKey&query=$searchQuery&language=en-US&include_adult=false"
+    ));
     final pagesDecodeJson = await compute(decodeJson, initialResponse.body);
 
     int pages = pagesDecodeJson['total_pages'] as int;
     responses.add(pagesDecodeJson as Map<String, dynamic>);
     if (pages > 5) pages = 5;
     for (int i = 2; i <= pages; i++) {
-      undecodedResponse = await client.get(
-          "https://api.themoviedb.org/3/search/tv?api_key=$_apiKey&query=$searchQuery&language=en-US&include_adult=false&page=$i");
+      undecodedResponse = await client.get(Uri(
+        scheme: 'https',
+        host: 'api.themoviedb.org',
+        path: '3/search/movie',
+        queryParameters: {
+          'api_key': _apiKey,
+          'query': searchQuery,
+          'language': 'en-US',
+          'page': i.toString(),
+          'include_adult': 'false',
+        },
+        // query:
+        //     "https://api.themoviedb.org/3/search/tv?api_key=$_apiKey&query=$searchQuery&language=en-US&include_adult=false&page=$i"
+      ));
       final response = await compute(decodeJson, undecodedResponse.body);
       responses.add(response as Map<String, dynamic>);
     }

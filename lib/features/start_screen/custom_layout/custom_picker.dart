@@ -17,38 +17,15 @@ class CustomPicker extends StatelessWidget {
       child: Column(
         children: [
           const Padding(
-            padding: EdgeInsets.all(4.0),
+            padding: EdgeInsets.all(12.0),
             child: Text(
               "Select number of rows",
-              style: TextStyle(fontSize: 12),
+              style: TextStyle(fontSize: 18),
             ),
           ),
-          Consumer<GridControl>(
-            builder: (context, controller, child) {
-              return NumberPicker(
-                  itemHeight: 30,
-                  itemWidth: 30,
-                  textStyle: const TextStyle(fontSize: 10),
-                  selectedTextStyle: const TextStyle(
-                      fontSize: 12, fontWeight: FontWeight.bold),
-                  decoration: BoxDecoration(
-                    border: Border.all(),
-                    borderRadius: BorderRadius.circular(5),
-                  ),
-                  axis: Axis.horizontal,
-                  minValue: 1,
-                  maxValue: 20,
-                  value: controller.rowCount,
-                  onChanged: (value) {
-                    controller.setRowCount(value);
-                    controller.gridController.animateTo(5,
-                        duration: const Duration(milliseconds: 100),
-                        curve: Curves.easeInOut);
-                  });
-            },
-          ),
+          const RowCountPicker(),
           const Padding(padding: EdgeInsets.all(4)),
-          CustomGridView(),
+          const CustomGridView(),
           const Padding(
             padding: EdgeInsets.only(
               //top: 8.0,
@@ -64,6 +41,39 @@ class CustomPicker extends StatelessWidget {
           })
         ],
       ),
+    );
+  }
+}
+
+class RowCountPicker extends StatelessWidget {
+  const RowCountPicker({
+    Key key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<GridControl>(
+      builder: (context, controller, child) {
+        return NumberPicker(
+            itemWidth: 50,
+            textStyle: const TextStyle(fontSize: 14),
+            selectedTextStyle:
+                const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            decoration: BoxDecoration(
+              border: Border.all(),
+              borderRadius: BorderRadius.circular(5),
+            ),
+            axis: Axis.horizontal,
+            minValue: 1,
+            maxValue: 20,
+            value: controller.rowCount,
+            onChanged: (value) {
+              controller.setRowCount(value);
+              controller.gridController.animateTo(5,
+                  duration: const Duration(milliseconds: 100),
+                  curve: Curves.easeInOut);
+            });
+      },
     );
   }
 }
@@ -97,36 +107,35 @@ class GridColumn extends StatelessWidget {
 
 // ignore: must_be_immutable
 class CustomGridView extends StatelessWidget {
-  ScrollController gridController;
-  CustomGridView({
+  const CustomGridView({
     Key key,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 190,
-      width: 200,
-      child: Selector<GridControl, int>(selector: (context, controller) {
-        gridController = controller.gridController;
-        return controller.rowCount;
-      }, builder: (context, rowCount, child) {
-        return Scrollbar(
-            controller: gridController,
-            isAlwaysShown: true,
-            thickness: 3,
-            hoverThickness: 6,
-            radius: const Radius.circular(0),
-            showTrackOnHover: true,
-            child: Padding(
-                padding: const EdgeInsets.only(right: 12.0, left: 12.0),
-                child: ListView.builder(
-                    itemCount: rowCount,
-                    controller: gridController,
-                    itemBuilder: (context, index) {
-                      return GridColumn(index);
-                    })));
-      }),
+      height: 240,
+      width: 240,
+      child: Selector<GridControl, int>(
+          selector: (context, controller) => controller.rowCount,
+          builder: (context, rowCount, child) {
+            return Scrollbar(
+                controller: Provider.of<GridControl>(context).gridController,
+                isAlwaysShown: true,
+                thickness: 3,
+                hoverThickness: 6,
+                radius: const Radius.circular(0),
+                showTrackOnHover: true,
+                child: Padding(
+                    padding: const EdgeInsets.only(right: 12.0, left: 12.0),
+                    child: ListView.builder(
+                        itemCount: rowCount,
+                        controller:
+                            Provider.of<GridControl>(context).gridController,
+                        itemBuilder: (context, index) {
+                          return GridColumn(index);
+                        })));
+          }),
     );
   }
 }
@@ -139,7 +148,7 @@ class RowSteppers extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 300,
+      height: 303,
       width: 220,
       child: Consumer<GridControl>(builder: (context, controller, child) {
         return Padding(
@@ -201,10 +210,10 @@ class RowList extends StatelessWidget {
                 child: Text(
                   "Row ${index + 1}",
                   style:
-                      const TextStyle(color: Color(0xFFEBEBEB), fontSize: 11),
+                      const TextStyle(color: Color(0xFFEBEBEB), fontSize: 14),
                 )),
             Container(
-              height: 20,
+              height: 30,
               //width: 10,
               decoration: BoxDecoration(
                 border: Border.all(color: const Color(0xFF050505)),
@@ -213,20 +222,22 @@ class RowList extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   SizedBox(
-                    width: 12,
+                    width: 15,
                     child: TextButton(
+                      // style: ButtonStyle(
+                      //     minimumSize: MaterialStateProperty.resolveWith<Size>(
+                      //         (states) => const Size(50, 50))),
                       onPressed: () {
                         controller.decrementRowTileCount(index);
                       },
-                      child: const Text(
-                        "-",
-                        style: TextStyle(color: Color(0xFF050505)),
-                      ),
+                      child: const Text("-",
+                          style: TextStyle(
+                              color: Color(0xFF050505), fontSize: 12)),
                     ),
                   ),
                   Text(controller.rowTileCount[index].toString()),
                   SizedBox(
-                    width: 12,
+                    width: 15,
                     child: TextButton(
                       onPressed: () {
                         controller.incrementRowTileCount(index);

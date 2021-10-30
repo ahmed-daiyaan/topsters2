@@ -18,25 +18,42 @@ class TopsterGridRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GridView.custom(
-        controller: ScrollController(),
-        shrinkWrap: true,
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          //childAspectRatio: 0.8,
-          crossAxisCount: count,
-        ),
-        childrenDelegate: SliverChildListDelegate(List<Widget>.generate(
-            count,
-            (boxCountIndex) => Consumer<Options>(
+    return Column(
+      children: [
+        GridView.builder(
+            controller: ScrollController(),
+            shrinkWrap: true,
+            itemCount: count,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              //childAspectRatio: 0.8,
+              crossAxisCount: count,
+            ),
+            itemBuilder: (context, boxCountIndex) => Consumer<Options>(
                 builder: (context, opt, child) {
                   return Padding(
-                      padding: EdgeInsets.all(opt.boxPadding), child: child);
+                      padding: EdgeInsets.all(opt.boxPadding),
+                      child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius:
+                                BorderRadius.circular(opt.boxBorderRadius),
+                            border: opt.boxBorderSize == 0.0
+                                ? Border.all()
+                                : Border.all(
+                                    width: opt.boxBorderSize,
+                                    color: opt.boxBorderColor),
+                          ),
+                          child: ClipRRect(
+                              borderRadius:
+                                  BorderRadius.circular(opt.boxRadius),
+                              child: child)));
                 },
                 child: TopsterBox(
                     index: calculateBoxIndex(
                   rowIndex,
                   boxCountIndex,
-                ))))));
+                )))),
+      ],
+    );
   }
 
   int calculateBoxIndex(int columnIndex, int rowIndex) {
